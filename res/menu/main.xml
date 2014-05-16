@@ -1,0 +1,41 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" >
+    <item
+        android:id="@+id/menu_scan_usb"
+        android:orderInCategory="100"
+        android:title="Load IP channel list from USB"/>
+    <item
+        android:id="@+id/menu_epg"
+        android:orderInCategory="100"
+        android:title="Open EPG"/>
+    <item
+        android:id="@+id/menu_subtitles"
+        android:orderInCategory="100"
+        android:title="Subtitle settings">
+        <menu>
+            <item
+                android:id="@+id/menu_subtitles_automatic"
+                android:checkable="true"
+                android:title="Automatic subtitle display"/>
+            <item
+                android:id="@+id/menu_subtitles_mode"
+                android:title="Subtitles type [Normal/HOH]">
+                <menu>
+                    <group
+                        android:id="@+id/group_subtitles_mode"
+                        android:checkableBehavior="single" >
+                        <item
+                            android:id="@+id/menu_subtitles_mode_normal"
+                            android:checkable="true"
+                            android:title="Normal"/>
+                        <item
+                            android:id="@+id/menu_subtitles_mode_hoh"
+                            android:checkable="true"
+                            android:title="Hard Of Hearing"/>
+                    </group>
+                </menu>
+            </item>
+        </menu>
+    </item>
+</menu>
