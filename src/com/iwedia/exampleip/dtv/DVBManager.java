@@ -57,10 +57,6 @@ public class DVBManager {
     private boolean ipAndSomeOtherTunerType = false;
     /** Teletext and subtitle */
     private TeletextSubtitleAudioManager mTeletextSubtitleAudioManager;
-    /**
-     * PVR and Time shift stuff
-     */
-    private PvrManager mPvrManager = null;
     private static DVBManager instance;
 
     public static DVBManager getInstance() {
@@ -80,7 +76,6 @@ public class DVBManager {
      */
     private void initializeDTVService() {
         initializeRouteId();
-        mPvrManager = PvrManager.getInstance(mDTVManager.getPvrControl());
         mTeletextSubtitleAudioManager = TeletextSubtitleAudioManager
                 .getInstance(mDTVManager.getTeletextControl(),
                         mDTVManager.getSubtitleControl(),
@@ -326,13 +321,6 @@ public class DVBManager {
         }
         if (mTeletextSubtitleAudioManager.isSubtitleActive()) {
             mTeletextSubtitleAudioManager.hideSubtitles();
-        }
-        mPvrManager.unregisterPvrCallback();
-        if (mPvrManager.isTimeShftActive()) {
-            mPvrManager.stopTimeShift();
-        }
-        if (mPvrManager.isPvrActive()) {
-            mPvrManager.stopPvr();
         }
         mDTVManager.getVideoControl().videoBlank(mPlaybackRouteIDMain, false);
         mDTVManager.getServiceControl().stopService(mCurrentLiveRoute);
@@ -583,10 +571,6 @@ public class DVBManager {
 
     public int getCurrentRecordRoute() {
         return mCurrentRecordRoute;
-    }
-
-    public PvrManager getPvrManager() {
-        return mPvrManager;
     }
 
     public TeletextSubtitleAudioManager getTeletextSubtitleAudioManager() {

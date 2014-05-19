@@ -1,3 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2014 iWedia S.A.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -42,40 +58,4 @@
             android:textSize="@dimen/text_size_channel_change_name"
             android:textStyle="bold" />
     </LinearLayout>
-    <!-- Info banner -->
-    <RelativeLayout
-        android:id="@+id/pvr_info_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="@drawable/channel_change_selector"
-        android:padding="15dp"
-        android:visibility="gone" >
-        <TextView
-            android:id="@+id/textViewPosition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:text="00:00:00"
-            android:textColor="@android:color/white" />
-        <TextView
-            android:id="@+id/textViewAvailablePosition"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:text="--:--:--"
-            android:textColor="@android:color/white" />
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_toLeftOf="@+id/textViewAvailablePosition"
-            android:layout_toRightOf="@+id/textViewPosition" />
-    </RelativeLayout>
 </RelativeLayout>
