@@ -12,9 +12,11 @@ package com.iwedia.exampleip;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
+import android.graphics.PixelFormat;
 import android.os.RemoteException;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
@@ -30,10 +32,22 @@ import com.iwedia.four.R;
 public class ChannelListDialog extends Dialog implements OnItemClickListener {
     public static final String TAG = "ChannelListActivity";
     private GridView mChannelList;
+    private Context mContext;
 
-    public ChannelListDialog(Context context) {
-        super(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+    public ChannelListDialog(Context context, int width, int height) {
+        super(context, R.style.DialogTransparent);
+        mContext = context;
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
+                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED);
+        getWindow().setFormat(PixelFormat.RGBA_8888);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DITHER);
         setContentView(R.layout.channel_list_activity);
+        getWindow().getAttributes().width = width;
+        getWindow().getAttributes().height = height;
         /** Initialize GridView. */
         initializeChannelList(context);
     }
@@ -47,7 +61,12 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
     private void initializeChannelList(Context context) {
         mChannelList = (GridView) findViewById(R.id.gridview_channellist);
         mChannelList.setOnItemClickListener(this);
-        mChannelList.setAdapter(new ChannelListAdapter(context, DVBManager
+    }
+
+    @Override
+    public void show() {
+        super.show();
+        mChannelList.setAdapter(new ChannelListAdapter(mContext, DVBManager
                 .getInstance().getChannelNames()));
         mChannelList.setSelection(DVBManager.getInstance()
                 .getCurrentChannelNumber());

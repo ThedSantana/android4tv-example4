@@ -14,6 +14,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
@@ -57,6 +58,12 @@ public abstract class DTVActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+        Window window = getWindow();
+        if (window != null) {
+            window.setFormat(PixelFormat.RGBA_8888);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DITHER);
+            window.getDecorView().getBackground().setDither(true);
+        }
         /** Creates dtv manager object and connects it to service. */
         mDVBManager = DVBManager.getInstance();
         initializeIpChannels();
@@ -150,6 +157,12 @@ public abstract class DTVActivity extends Activity {
         br = null;
     }
 
+    /**
+     * Load list of IP channels from external storage.
+     * 
+     * @param ipChannels
+     *        List to populate with IP channels.
+     */
     public void loadIPChannelsFromExternalStorage(
             ArrayList<IPService> ipChannels) {
         ArrayList<File> ipServiceListFiles = new ArrayList<File>();

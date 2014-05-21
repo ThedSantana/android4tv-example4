@@ -40,13 +40,13 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.iwedia.dtv.audio.AudioTrack;
-import com.iwedia.dtv.pvr.PvrEventTimeshiftPosition;
 import com.iwedia.dtv.subtitle.SubtitleMode;
 import com.iwedia.dtv.subtitle.SubtitleTrack;
 import com.iwedia.dtv.teletext.TeletextTrack;
 import com.iwedia.dtv.types.InternalException;
 import com.iwedia.exampleip.dtv.ChannelInfo;
 import com.iwedia.exampleip.dtv.IPService;
+import com.iwedia.exampleip.dtv.TeletextSubtitleAudioManager;
 import com.iwedia.four.R;
 
 import java.text.SimpleDateFormat;
@@ -66,10 +66,6 @@ public class MainActivity extends DTVActivity {
     private UiHandler mHandler = null;
     /** Subtitle and teletext views */
     private SurfaceView mSurfaceView;
-    /**
-     * PVR and Time shift stuff.
-     */
-    private View mPvrInfoContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +75,8 @@ public class MainActivity extends DTVActivity {
         initializeVideoView();
         /** Initialize Channel Container. */
         initializeChannelContainer();
-        /** Initialize subtitle and teletext views */
-        initializeSubtitleAndTeletext();
+        /** Initialize subtitle and teletext surface view */
+        initializeSurfaceView();
         /** Load default IP channel list */
         initIpChannels();
         /** Initialize Handler. */
@@ -181,9 +177,6 @@ public class MainActivity extends DTVActivity {
                 sIpChannels = ipChannels;
                 return true;
             }
-            case R.id.menu_epg: {
-                return true;
-            }
             case R.id.menu_subtitles_automatic: {
                 item.setChecked(!item.isChecked());
                 mDVBManager.getTeletextSubtitleAudioManager()
@@ -254,7 +247,10 @@ public class MainActivity extends DTVActivity {
         mChannelName = (TextView) findViewById(R.id.textview_channel_name);
     }
 
-    private void initializeSubtitleAndTeletext() {
+    /**
+     * Initialize surface view
+     */
+    private void initializeSurfaceView() {
         mSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mSurfaceView.getHolder().setFormat(PixelFormat.RGBA_8888);
         mSurfaceView.setVisibility(View.VISIBLE);
@@ -293,8 +289,12 @@ public class MainActivity extends DTVActivity {
         }
         switch (keyCode) {
         /** Open Channel List. */
+            case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_DPAD_CENTER: {
-                new ChannelListDialog(this).show();
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                new ChannelListDialog(this, size.x, size.y).show();
                 return true;
             }
             case KeyEvent.KEYCODE_0:
@@ -319,6 +319,7 @@ public class MainActivity extends DTVActivity {
                 }
             }
             /** TELETEXT KEY */
+            case KeyEvent.KEYCODE_T:
             case KeyEvent.KEYCODE_F5: {
                 /** TTX is already active */
                 if (mDVBManager.getTeletextSubtitleAudioManager()
@@ -356,8 +357,9 @@ public class MainActivity extends DTVActivity {
                                     .getTeletextSubtitleAudioManager()
                                     .convertTeletextTrackTypeToHumanReadableFormat(
                                             track.getType());
-                            arrayAdapter.add(track.getName() + " [" + type
-                                    + "]");
+                            arrayAdapter.add(TeletextSubtitleAudioManager
+                                    .convertTrigramsToLanguage(track.getName())
+                                    + " [" + type + "]");
                         }
                         createListDIalog("Select teletext track", arrayAdapter,
                                 new OnClickListener() {
@@ -393,6 +395,7 @@ public class MainActivity extends DTVActivity {
                 return true;
             }
             /** SUBTITLES KEY. */
+            case KeyEvent.KEYCODE_S:
             case KeyEvent.KEYCODE_CAPTIONS: {
                 /** Hide subtitles. */
                 if (mDVBManager.getTeletextSubtitleAudioManager()
@@ -419,7 +422,9 @@ public class MainActivity extends DTVActivity {
                                     .getTeletextSubtitleAudioManager()
                                     .getSubtitleTrack(i);
                             arrayAdapter
-                                    .add(track.getName()
+                                    .add(TeletextSubtitleAudioManager
+                                            .convertTrigramsToLanguage(track
+                                                    .getName())
                                             + " ["
                                             + mDVBManager
                                                     .getTeletextSubtitleAudioManager()
@@ -463,6 +468,7 @@ public class MainActivity extends DTVActivity {
             /**
              * AUDIO LANGUAGES
              */
+            case KeyEvent.KEYCODE_A:
             case KeyEvent.KEYCODE_F6: {
                 int trackCount = mDVBManager.getTeletextSubtitleAudioManager()
                         .getAudioLanguagesTrackCount();
@@ -543,6 +549,12 @@ public class MainActivity extends DTVActivity {
         }
     }
 
+    /**
+     * Clear surface view with transparency.
+     * 
+     * @param surface
+     *        Surface view to refresh.
+     */
     private static void refreshSurfaceView(SurfaceView surface) {
         if (surface.getVisibility() == View.VISIBLE) {
             Canvas canvas = surface.getHolder().lockCanvas();
@@ -573,7 +585,7 @@ public class MainActivity extends DTVActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case HIDE_CHANNEL_INFO_VIEW_MESSAGE: {
-                    mChannelContainer.setVisibility(View.GONE);
+                    mChannelContainer.setVisibility(View.INVISIBLE);
                     refreshSurfaceView(mSurface);
                     break;
                 }
@@ -581,6 +593,13 @@ public class MainActivity extends DTVActivity {
         }
     }
 
+    /**
+     * If key is for Teletext engine handling.
+     * 
+     * @param keyCode
+     *        to check.
+     * @return True if it is ok, false otherwise.
+     */
     private boolean isTeletextKey(int keyCode) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_0:
@@ -597,7 +616,8 @@ public class MainActivity extends DTVActivity {
             case KeyEvent.KEYCODE_PROG_GREEN:
             case KeyEvent.KEYCODE_PROG_BLUE:
             case KeyEvent.KEYCODE_PROG_YELLOW:
-            case KeyEvent.KEYCODE_F5: {
+            case KeyEvent.KEYCODE_F5:
+            case KeyEvent.KEYCODE_T: {
                 return true;
             }
             default:
@@ -626,25 +646,5 @@ public class MainActivity extends DTVActivity {
                 });
         builderSingle.setAdapter(arrayAdapter, listClickListener);
         builderSingle.show();
-    }
-
-    private class PvrTimeShiftPositionHolder {
-        private int mEndTime;
-        private PvrEventTimeshiftPosition mPositionObject;
-
-        public PvrTimeShiftPositionHolder(int mEndTime,
-                PvrEventTimeshiftPosition mPositionObject) {
-            super();
-            this.mEndTime = mEndTime;
-            this.mPositionObject = mPositionObject;
-        }
-
-        public int getEndTime() {
-            return mEndTime;
-        }
-
-        public PvrEventTimeshiftPosition getPositionObject() {
-            return mPositionObject;
-        }
     }
 }
