@@ -68,6 +68,18 @@ public class TeletextSubtitleAudioManager {
         this.mDisplayControl = mDisplayControl;
     }
 
+    /**
+     * Initialize teletext and subtitle drawing surface.
+     * 
+     * @param surfaceView
+     *        to send to teletext and subtitle engine.
+     * @param screenWidth
+     *        Width of screen.
+     * @param screenHeight
+     *        Height of screen.
+     * @throws IllegalArgumentException
+     * @throws InternalException
+     */
     public void initializeSubtitleAndTeletextDisplay(SurfaceView surfaceView,
             int screenWidth, int screenHeight) throws IllegalArgumentException,
             InternalException {
@@ -145,11 +157,17 @@ public class TeletextSubtitleAudioManager {
         }
     }
 
+    /**
+     * Returns teletext track by index.
+     */
     public TeletextTrack getTeletextTrack(int index) {
         return mTeletextControl.getTeletextTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute(), index);
     }
 
+    /**
+     * Send pressed keycode to teletext engine.
+     */
     public void sendTeletextInputCommand(int keyCode) {
         mTeletextControl.sendInputControl(DVBManager.getInstance()
                 .getCurrentLiveRoute(), UserControl.PRESSED, keyCode);
@@ -165,6 +183,13 @@ public class TeletextSubtitleAudioManager {
                 .getCurrentLiveRoute());
     }
 
+    /**
+     * Convert teletext track type to human readable format.
+     * 
+     * @param type
+     *        Teletext track type.
+     * @return Converted string.
+     */
     public String convertTeletextTrackTypeToHumanReadableFormat(int type) {
         switch (type) {
             case 1: {
@@ -187,6 +212,13 @@ public class TeletextSubtitleAudioManager {
         }
     }
 
+    /**
+     * Convert subtitle track mode to human readable format.
+     * 
+     * @param type
+     *        Subtitle track mode.
+     * @return Converted string.
+     */
     public String convertSubtitleTrackModeToHumanReadableFormat(int modeIndex) {
         SubtitleMode mode = SubtitleMode.getFromValue(modeIndex);
         if (mode == SubtitleMode.TRANSLATION) {
@@ -197,6 +229,14 @@ public class TeletextSubtitleAudioManager {
         return "";
     }
 
+    /**
+     * Show subtitles on screen.
+     * 
+     * @param trackIndex
+     *        Subtitle track to show.
+     * @return True if subtitle is started, false otherwise.
+     * @throws InternalException
+     */
     public boolean showSubtitles(int trackIndex) throws InternalException {
         mSubtitleControl.setCurrentSubtitleTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute(), trackIndex);
@@ -207,6 +247,11 @@ public class TeletextSubtitleAudioManager {
         return subtitleActive;
     }
 
+    /**
+     * Hide started subtitle.
+     * 
+     * @throws InternalException
+     */
     public void hideSubtitles() throws InternalException {
         mSubtitleControl.deselectCurrentSubtitleTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute());
@@ -216,6 +261,9 @@ public class TeletextSubtitleAudioManager {
         }
     }
 
+    /**
+     * Returns subtitle track by index.
+     */
     public SubtitleTrack getSubtitleTrack(int index) {
         return mSubtitleControl.getSubtitleTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute(), index);
@@ -231,45 +279,76 @@ public class TeletextSubtitleAudioManager {
                 .getCurrentLiveRoute());
     }
 
+    /**
+     * Returns TRUE if automatic subtitle displaying is enabled, FALSE
+     * otherwise.
+     */
     public boolean isSubtitleAutomatic() {
         return mSubtitleControl.isAutomaticSubtitleDisplayEnabled();
     }
 
+    /**
+     * Set automatic subtitle displaying.
+     */
     public void setSubtitleAutomatic(boolean automatic) {
         mSubtitleControl.enableAutomaticSubtitleDisplay(automatic);
     }
 
+    /**
+     * Returns active subtitle type.
+     */
     public SubtitleType getSubtitleType() {
         return mSubtitleControl.getSubtitleType();
     }
 
+    /**
+     * Sets active subtitle type.
+     */
     public void setSubtitleType(SubtitleType type) {
         mSubtitleControl.setSubtitleType(type);
     }
 
+    /**
+     * Returns active subtitle mode.
+     */
     public SubtitleMode getSubtitleMode() {
         return mSubtitleControl.getSubtitleMode();
     }
 
+    /**
+     * Sets active subtitle mode.
+     */
     public void setSubtitleMode(SubtitleMode mode) {
         mSubtitleControl.setSubtitleMode(mode);
     }
 
+    /**
+     * Returns number of audio tracks for current channel.
+     */
     public int getAudioLanguagesTrackCount() {
         return mAudioControl.getAudioTrackCount(DVBManager.getInstance()
                 .getCurrentLiveRoute());
     }
 
+    /**
+     * Returns audio track by index.
+     */
     public AudioTrack getAudioLanguage(int index) {
         return mAudioControl.getAudioTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute(), index);
     }
 
+    /**
+     * Sets audio track with desired index as active.
+     */
     public void setAudioTrack(int index) throws InternalException {
         mAudioControl.setCurrentAudioTrack(DVBManager.getInstance()
                 .getCurrentLiveRoute(), index);
     }
 
+    /**
+     * Returns TRUE if subtitle is active, FALSE otherwise.
+     */
     public boolean isSubtitleActive() {
         if (mSubtitleControl.getCurrentSubtitleTrackIndex(DVBManager
                 .getInstance().getCurrentLiveRoute()) < 0) {
@@ -280,6 +359,9 @@ public class TeletextSubtitleAudioManager {
         return subtitleActive;
     }
 
+    /**
+     * Returns TRUE if teletext is active, FALSE otherwise.
+     */
     public boolean isTeletextActive() {
         if (mTeletextControl.getCurrentTeletextTrackIndex(DVBManager
                 .getInstance().getCurrentLiveRoute()) < 0) {

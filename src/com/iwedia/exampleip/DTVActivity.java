@@ -150,6 +150,12 @@ public abstract class DTVActivity extends Activity {
         br = null;
     }
 
+    /**
+     * Load list of IP channels from external storage.
+     * 
+     * @param ipChannels
+     *        List to populate with IP channels.
+     */
     public void loadIPChannelsFromExternalStorage(
             ArrayList<IPService> ipChannels) {
         ArrayList<File> ipServiceListFiles = new ArrayList<File>();

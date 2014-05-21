@@ -40,7 +40,6 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.iwedia.dtv.audio.AudioTrack;
-import com.iwedia.dtv.pvr.PvrEventTimeshiftPosition;
 import com.iwedia.dtv.subtitle.SubtitleMode;
 import com.iwedia.dtv.subtitle.SubtitleTrack;
 import com.iwedia.dtv.teletext.TeletextTrack;
@@ -66,10 +65,6 @@ public class MainActivity extends DTVActivity {
     private UiHandler mHandler = null;
     /** Subtitle and teletext views */
     private SurfaceView mSurfaceView;
-    /**
-     * PVR and Time shift stuff.
-     */
-    private View mPvrInfoContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +74,8 @@ public class MainActivity extends DTVActivity {
         initializeVideoView();
         /** Initialize Channel Container. */
         initializeChannelContainer();
-        /** Initialize subtitle and teletext views */
-        initializeSubtitleAndTeletext();
+        /** Initialize subtitle and teletext surface view */
+        initializeSurfaceView();
         /** Load default IP channel list */
         initIpChannels();
         /** Initialize Handler. */
@@ -254,7 +249,10 @@ public class MainActivity extends DTVActivity {
         mChannelName = (TextView) findViewById(R.id.textview_channel_name);
     }
 
-    private void initializeSubtitleAndTeletext() {
+    /**
+     * Initialize surface view
+     */
+    private void initializeSurfaceView() {
         mSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         mSurfaceView.getHolder().setFormat(PixelFormat.RGBA_8888);
         mSurfaceView.setVisibility(View.VISIBLE);
@@ -543,6 +541,12 @@ public class MainActivity extends DTVActivity {
         }
     }
 
+    /**
+     * Clear surface view with transparency.
+     * 
+     * @param surface
+     *        Surface view to refresh.
+     */
     private static void refreshSurfaceView(SurfaceView surface) {
         if (surface.getVisibility() == View.VISIBLE) {
             Canvas canvas = surface.getHolder().lockCanvas();
@@ -581,6 +585,13 @@ public class MainActivity extends DTVActivity {
         }
     }
 
+    /**
+     * If key is for Teletext engine handling.
+     * 
+     * @param keyCode
+     *        to check.
+     * @return True if it is ok, false otherwise.
+     */
     private boolean isTeletextKey(int keyCode) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_0:
@@ -626,25 +637,5 @@ public class MainActivity extends DTVActivity {
                 });
         builderSingle.setAdapter(arrayAdapter, listClickListener);
         builderSingle.show();
-    }
-
-    private class PvrTimeShiftPositionHolder {
-        private int mEndTime;
-        private PvrEventTimeshiftPosition mPositionObject;
-
-        public PvrTimeShiftPositionHolder(int mEndTime,
-                PvrEventTimeshiftPosition mPositionObject) {
-            super();
-            this.mEndTime = mEndTime;
-            this.mPositionObject = mPositionObject;
-        }
-
-        public int getEndTime() {
-            return mEndTime;
-        }
-
-        public PvrEventTimeshiftPosition getPositionObject() {
-            return mPositionObject;
-        }
     }
 }

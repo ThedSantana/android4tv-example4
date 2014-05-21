@@ -361,7 +361,6 @@ public class DVBManager {
      */
     public ChannelInfo changeChannelByNumber(int channelNumber)
             throws InternalException {
-        Log.d(TAG, "setChannel, channelNumber: " + channelNumber);
         channelNumber = (channelNumber + getChannelListSize())
                 % getChannelListSize();
         int numberOfDtvChannels = getChannelListSize()
@@ -373,9 +372,6 @@ public class DVBManager {
                             CURRENT_LIST_INDEX,
                             ipAndSomeOtherTunerType ? channelNumber + 1
                                     : channelNumber);
-            // if (desiredService.isScrambled()) {
-            // return null;
-            // }
             int route = getActiveRouteByServiceType(desiredService
                     .getSourceType());
             if (route == -1) {
@@ -489,9 +485,7 @@ public class DVBManager {
             for (int i = 0; i < DTVActivity.sIpChannels.size(); i++) {
                 channelNames.add(DTVActivity.sIpChannels.get(i).getName());
             }
-            Log.d(TAG, "IP CHANNELS: " + DTVActivity.sIpChannels.toString());
         }
-        Log.d(TAG, "IP CHANNELS: " + DTVActivity.sIpChannels.toString());
         return channelNames;
     }
 
@@ -499,8 +493,6 @@ public class DVBManager {
      * Get Current Channel Number.
      */
     public int getCurrentChannelNumber() {
-        Log.d(TAG, "getCurrentChannelNumber, mCurrentChannelNumberIp="
-                + mCurrentChannelNumberIp);
         /** For IP */
         if (mCurrentLiveRoute == mLiveRouteIp) {
             return mCurrentChannelNumberIp;
