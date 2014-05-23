@@ -234,7 +234,6 @@ public class MainActivity extends DTVActivity {
                 return true;
             }
         });
-        videoView.start();
     }
 
     /**
@@ -317,6 +316,7 @@ public class MainActivity extends DTVActivity {
                             .sendTeletextInputCommand(keyCode);
                     return true;
                 }
+                break;
             }
             /** TELETEXT KEY */
             case KeyEvent.KEYCODE_T:
@@ -547,6 +547,7 @@ public class MainActivity extends DTVActivity {
                 return super.onKeyDown(keyCode, event);
             }
         }
+        return super.onKeyDown(keyCode, event);
     }
 
     /**
