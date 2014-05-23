@@ -108,8 +108,8 @@ public class MainActivity extends DTVActivity {
                     Point size = new Point();
                     display.getSize(size);
                     mDVBManager.getTeletextSubtitleAudioManager()
-                            .initializeSubtitleAndTeletextDisplay(mSurfaceView,
-                                    size.x, size.y);
+                            .initializeSubtitleAndTeletextDisplay(
+                                    mSurfaceView, size.x, size.y);
                     refreshSurfaceView(mSurfaceView);
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
