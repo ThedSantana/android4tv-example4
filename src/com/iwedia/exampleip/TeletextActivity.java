@@ -52,7 +52,7 @@ import com.iwedia.four.R;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class MainActivity extends DTVActivity {
+public class TeletextActivity extends DTVActivity {
     public static final String TAG = "MainActivity";
     /** URI For VideoView. */
     public static final String TV_URI = "tv://";
@@ -371,13 +371,13 @@ public class MainActivity extends DTVActivity {
                                                     .getTeletextSubtitleAudioManager()
                                                     .changeTeletext(which)) {
                                                 Toast.makeText(
-                                                        MainActivity.this,
+                                                        TeletextActivity.this,
                                                         "Teletext started",
                                                         Toast.LENGTH_SHORT)
                                                         .show();
                                             } else {
                                                 Toast.makeText(
-                                                        MainActivity.this,
+                                                        TeletextActivity.this,
                                                         "Teletext is not available",
                                                         Toast.LENGTH_SHORT)
                                                         .show();
@@ -442,13 +442,13 @@ public class MainActivity extends DTVActivity {
                                                     .getTeletextSubtitleAudioManager()
                                                     .showSubtitles(which)) {
                                                 Toast.makeText(
-                                                        MainActivity.this,
+                                                        TeletextActivity.this,
                                                         "Subtitle started",
                                                         Toast.LENGTH_SHORT)
                                                         .show();
                                             } else {
                                                 Toast.makeText(
-                                                        MainActivity.this,
+                                                        TeletextActivity.this,
                                                         "Subtitle is not available",
                                                         Toast.LENGTH_SHORT)
                                                         .show();
