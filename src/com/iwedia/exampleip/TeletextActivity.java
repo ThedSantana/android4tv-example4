@@ -31,6 +31,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -39,11 +40,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import com.iwedia.custom.CheckPinDialog;
+import com.iwedia.custom.CheckPinDialog.PinCheckedCallback;
 import com.iwedia.dtv.audio.AudioTrack;
+import com.iwedia.dtv.parental.dvb.ParentalLockAge;
 import com.iwedia.dtv.subtitle.SubtitleMode;
 import com.iwedia.dtv.subtitle.SubtitleTrack;
 import com.iwedia.dtv.teletext.TeletextTrack;
 import com.iwedia.dtv.types.InternalException;
+import com.iwedia.exampleip.callbacks.ParentalCallback;
 import com.iwedia.exampleip.dtv.ChannelInfo;
 import com.iwedia.exampleip.dtv.IPService;
 import com.iwedia.exampleip.dtv.TeletextSubtitleAudioManager;
@@ -94,6 +99,9 @@ public class TeletextActivity extends DTVActivity {
             /** Error with service connection. */
             finishActivity();
         }
+        /** Register parental callback. */
+        mDVBManager.getParentalManager().registerCallback(
+                ParentalCallback.getInstance(this));
     }
 
     @Override
@@ -108,8 +116,8 @@ public class TeletextActivity extends DTVActivity {
                     Point size = new Point();
                     display.getSize(size);
                     mDVBManager.getTeletextSubtitleAudioManager()
-                            .initializeSubtitleAndTeletextDisplay(
-                                    mSurfaceView, size.x, size.y);
+                            .initializeSubtitleAndTeletextDisplay(mSurfaceView,
+                                    size.x, size.y);
                     refreshSurfaceView(mSurfaceView);
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
@@ -135,6 +143,18 @@ public class TeletextActivity extends DTVActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_parental_age);
+        SubMenu subMenu = menuItem.getSubMenu();
+        for (int i = 0; i < ParentalLockAge.values().length; i++) {
+            ParentalLockAge parental = ParentalLockAge.values()[i];
+            String text = parental.name();
+            if (text.contains("_")) {
+                text = text.replace("_", " ");
+                text = text.replace("LOCK", "UNDER");
+            }
+            MenuItem item = subMenu.add(Menu.NONE, i, Menu.NONE, text);
+            item.setCheckable(true);
+        }
         return true;
     }
 
@@ -164,11 +184,21 @@ public class TeletextActivity extends DTVActivity {
         checkable.setChecked(mode == SubtitleMode.TRANSLATION);
         checkable = menu.findItem(R.id.menu_subtitles_mode_hoh);
         checkable.setChecked(mode == SubtitleMode.HEARING_IMPAIRED);
+        /**
+         * Parental rates.
+         */
+        /** Return all parental menu items to UNCHECKED. */
+        for (int i = 0; i < ParentalLockAge.values().length; i++) {
+            menu.findItem(i).setChecked(false);
+        }
+        /** CHECK active menu item. */
+        menu.findItem(mDVBManager.getParentalManager().getParentalRate())
+                .setChecked(true);
         return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_scan_usb: {
@@ -204,9 +234,26 @@ public class TeletextActivity extends DTVActivity {
                         SubtitleMode.HEARING_IMPAIRED);
                 return true;
             }
-            default:
-                return super.onOptionsItemSelected(item);
         }
+        /** Check for parental rate values. */
+        if (item.getItemId() >= 0
+                && item.getItemId() < ParentalLockAge.values().length) {
+            CheckPinDialog dialog = new CheckPinDialog(this,
+                    new PinCheckedCallback() {
+                        @Override
+                        public void pinChecked(boolean pinOk) {
+                            if (pinOk) {
+                                mDVBManager.getParentalManager()
+                                        .setParentalRate(
+                                                ParentalLockAge.values()[item
+                                                        .getItemId()]);
+                            }
+                        }
+                    });
+            dialog.show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

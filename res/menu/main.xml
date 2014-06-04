@@ -50,4 +50,12 @@
             </item>
         </menu>
     </item>
+    <item
+        android:id="@+id/menu_parental_age"
+        android:orderInCategory="100"
+        android:title="@string/parental_age">
+        <menu>
+            <!-- empty submenu, filled programatically -->
+        </menu>
+    </item>
 </menu>

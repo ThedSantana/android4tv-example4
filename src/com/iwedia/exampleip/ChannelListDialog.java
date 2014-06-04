@@ -10,17 +10,24 @@
  */
 package com.iwedia.exampleip;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.RemoteException;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.CheckBox;
 import android.widget.GridView;
 
+import com.iwedia.custom.CheckPinDialog;
+import com.iwedia.custom.CheckPinDialog.PinCheckedCallback;
 import com.iwedia.dtv.types.InternalException;
 import com.iwedia.exampleip.adapters.ChannelListAdapter;
 import com.iwedia.exampleip.dtv.DVBManager;
@@ -32,11 +39,11 @@ import com.iwedia.four.R;
 public class ChannelListDialog extends Dialog implements OnItemClickListener {
     public static final String TAG = "ChannelListActivity";
     private GridView mChannelList;
-    private Context mContext;
+    private Activity mActivity;
 
-    public ChannelListDialog(Context context, int width, int height) {
-        super(context, R.style.DialogTransparent);
-        mContext = context;
+    public ChannelListDialog(Activity activity, int width, int height) {
+        super(activity, R.style.DialogTransparent);
+        mActivity = activity;
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -49,7 +56,7 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
         getWindow().getAttributes().width = width;
         getWindow().getAttributes().height = height;
         /** Initialize GridView. */
-        initializeChannelList(context);
+        initializeChannelList(activity);
     }
 
     /**
@@ -64,9 +71,45 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = mActivity.getMenuInflater();
+        inflater.inflate(R.menu.channel_lock, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+        if (item.getItemId() == R.id.menu_channel_lock) {
+            if (((ChannelListAdapter) mChannelList.getAdapter())
+                    .isInChannelLockedState()) {
+                ((ChannelListAdapter) mChannelList.getAdapter())
+                        .setInChannelLockedState(false);
+            } else {
+                CheckPinDialog dialog = new CheckPinDialog(mActivity,
+                        new PinCheckedCallback() {
+                            @Override
+                            public void pinChecked(boolean pinOk) {
+                                ((ChannelListAdapter) mChannelList.getAdapter())
+                                        .setInChannelLockedState(true);
+                            }
+                        });
+                dialog.show();
+            }
+        }
+        return super.onMenuItemSelected(featureId, item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        ((ChannelListAdapter) mChannelList.getAdapter())
+                .setInChannelLockedState(false);
+    }
+
+    @Override
     public void show() {
         super.show();
-        mChannelList.setAdapter(new ChannelListAdapter(mContext, DVBManager
+        mChannelList.setAdapter(new ChannelListAdapter(mActivity, DVBManager
                 .getInstance().getChannelNames()));
         mChannelList.setSelection(DVBManager.getInstance()
                 .getCurrentChannelNumber());
@@ -74,11 +117,24 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
 
     @Override
     public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-        try {
-            DVBManager.getInstance().changeChannelByNumber(position);
-            cancel();
-        } catch (InternalException e) {
-            e.printStackTrace();
+        if (((ChannelListAdapter) parent.getAdapter()).isInChannelLockedState()) {
+            CheckBox checkBox = (CheckBox) v
+                    .findViewById(R.id.check_box_locked);
+            try {
+                DVBManager.getInstance().getParentalManager()
+                        .setChannelLock(position, !checkBox.isChecked());
+            } catch (InternalException e) {
+                e.printStackTrace();
+            }
+            checkBox.setChecked(!checkBox.isChecked());
+            v.invalidate();
+        } else {
+            try {
+                DVBManager.getInstance().changeChannelByNumber(position);
+                cancel();
+            } catch (InternalException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

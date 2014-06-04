@@ -16,8 +16,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.iwedia.dtv.types.InternalException;
+import com.iwedia.exampleip.dtv.DVBManager;
 import com.iwedia.four.R;
 
 import java.util.ArrayList;
@@ -29,6 +32,7 @@ public class ChannelListAdapter extends BaseAdapter {
     private final String TAG = "ChannelListAdapter";
     private LayoutInflater mLayoutInflater = null;
     private ArrayList<String> mChannelNames = null;
+    private boolean inChannelLockedState = false;
 
     public ChannelListAdapter(Context context, ArrayList<String> channelNames) {
         mLayoutInflater = (LayoutInflater) context
@@ -77,6 +81,18 @@ public class ChannelListAdapter extends BaseAdapter {
     private void setChannelItemView(int position, ChannelHolder holder) {
         holder.getItemChannelName().setText(mChannelNames.get(position));
         holder.getItemChannelNumber().setText(String.valueOf(position + 1));
+        if (inChannelLockedState) {
+            holder.getCheckBoxLock().setVisibility(View.VISIBLE);
+            try {
+                boolean status = DVBManager.getInstance().getParentalManager()
+                        .getChannelLockStatus(position);
+                holder.getCheckBoxLock().setChecked(status);
+            } catch (InternalException e) {
+                e.printStackTrace();
+            }
+        } else {
+            holder.getCheckBoxLock().setVisibility(View.INVISIBLE);
+        }
     }
 
     /**
@@ -85,12 +101,14 @@ public class ChannelListAdapter extends BaseAdapter {
     private class ChannelHolder {
         private TextView mItemChannelNumber = null;
         private TextView mItemChannelName = null;
+        private CheckBox mCheckBoxLock = null;
 
         protected ChannelHolder(View view) {
             mItemChannelNumber = (TextView) view
                     .findViewById(R.id.textview_channel_number);
             mItemChannelName = (TextView) view
                     .findViewById(R.id.textview_channel_name);
+            mCheckBoxLock = (CheckBox) view.findViewById(R.id.check_box_locked);
         }
 
         protected TextView getItemChannelNumber() {
@@ -100,5 +118,18 @@ public class ChannelListAdapter extends BaseAdapter {
         protected TextView getItemChannelName() {
             return mItemChannelName;
         }
+
+        protected CheckBox getCheckBoxLock() {
+            return mCheckBoxLock;
+        }
+    }
+
+    public boolean isInChannelLockedState() {
+        return inChannelLockedState;
+    }
+
+    public void setInChannelLockedState(boolean inChannelLockedState) {
+        this.inChannelLockedState = inChannelLockedState;
+        notifyDataSetChanged();
     }
 }

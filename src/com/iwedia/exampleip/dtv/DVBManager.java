@@ -57,6 +57,8 @@ public class DVBManager {
     private boolean ipAndSomeOtherTunerType = false;
     /** Teletext and subtitle */
     private TeletextSubtitleAudioManager mTeletextSubtitleAudioManager;
+    /** Parental control manager. */
+    private ParentalManager mParentalManager = null;
     private static DVBManager instance;
 
     public static DVBManager getInstance() {
@@ -76,6 +78,7 @@ public class DVBManager {
      */
     private void initializeDTVService() {
         initializeRouteId();
+        mParentalManager = ParentalManager.getInstance(mDTVManager);
         mTeletextSubtitleAudioManager = TeletextSubtitleAudioManager
                 .getInstance(mDTVManager.getTeletextControl(),
                         mDTVManager.getSubtitleControl(),
@@ -323,6 +326,8 @@ public class DVBManager {
         if (mTeletextSubtitleAudioManager.isSubtitleActive()) {
             mTeletextSubtitleAudioManager.hideSubtitles();
         }
+        mParentalManager.unregisterCallback();
+        ParentalManager.destroyInstance();
         mDTVManager.getVideoControl().videoBlank(mPlaybackRouteIDMain, false);
         mDTVManager.getServiceControl().stopService(mCurrentLiveRoute);
     }
@@ -564,6 +569,10 @@ public class DVBManager {
 
     public int getCurrentRecordRoute() {
         return mCurrentRecordRoute;
+    }
+
+    public ParentalManager getParentalManager() {
+        return mParentalManager;
     }
 
     public TeletextSubtitleAudioManager getTeletextSubtitleAudioManager() {
