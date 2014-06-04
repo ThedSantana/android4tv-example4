@@ -15,8 +15,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.iwedia.custom.CheckPinDialog;
-import com.iwedia.custom.CheckPinDialog.PinCheckedCallback;
+import com.iwedia.custom.EnterPinDialog;
+import com.iwedia.custom.EnterPinDialog.PinCheckedCallback;
 import com.iwedia.dtv.parental.dvb.IParentalCallbackDvb;
 import com.iwedia.dtv.parental.dvb.ParentalAgeEvent;
 
@@ -24,7 +24,7 @@ import com.iwedia.dtv.parental.dvb.ParentalAgeEvent;
  * Parental control callback.
  */
 public class ParentalCallback implements IParentalCallbackDvb {
-    private CheckPinDialog mAlertDialog;
+    private EnterPinDialog mAlertDialog;
     private Handler mHandler = new Handler() {
         public void handleMessage(Message msg) {
             mAlertDialog.show();
@@ -40,7 +40,7 @@ public class ParentalCallback implements IParentalCallbackDvb {
     }
 
     private ParentalCallback(final Context context) {
-        mAlertDialog = new CheckPinDialog(context, new PinCheckedCallback() {
+        mAlertDialog = new EnterPinDialog(context, new PinCheckedCallback() {
             @Override
             public void pinChecked(boolean pinOk) {
                 Log.d("ParentalCallback", "PIN IS OK: " + pinOk);

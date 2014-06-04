@@ -63,13 +63,25 @@ public class ParentalManager {
         return mParentalControl.checkPinCode(pin);
     }
 
+    public void changePin(int newPin) {
+        mParentalControl.setPinCode(newPin);
+    }
+
     public void setChannelLock(int channelIndex, boolean locked)
             throws InternalException {
-        mParentalControl.setChannelLock(channelIndex+(DVBManager.getInstance().isIpAndSomeOtherTunerType()?1:0), locked);
+        mParentalControl
+                .setChannelLock(
+                        channelIndex
+                                + (DVBManager.getInstance()
+                                        .isIpAndSomeOtherTunerType() ? 1 : 0),
+                        locked);
     }
 
     public boolean getChannelLockStatus(int channelIndex)
             throws InternalException {
-        return mParentalControl.getChannelLock(channelIndex+(DVBManager.getInstance().isIpAndSomeOtherTunerType()?1:0));
+        return mParentalControl
+                .getChannelLock(channelIndex
+                        + (DVBManager.getInstance().isIpAndSomeOtherTunerType() ? 1
+                                : 0));
     }
 }

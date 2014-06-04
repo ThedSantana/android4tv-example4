@@ -40,8 +40,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.iwedia.custom.CheckPinDialog;
-import com.iwedia.custom.CheckPinDialog.PinCheckedCallback;
+import com.iwedia.custom.EnterPinDialog;
+import com.iwedia.custom.EnterPinDialog.PinCheckedCallback;
+import com.iwedia.custom.EnterPinDialog.PinEnteredCallback;
 import com.iwedia.dtv.audio.AudioTrack;
 import com.iwedia.dtv.parental.dvb.ParentalLockAge;
 import com.iwedia.dtv.subtitle.SubtitleMode;
@@ -234,11 +235,35 @@ public class TeletextActivity extends DTVActivity {
                         SubtitleMode.HEARING_IMPAIRED);
                 return true;
             }
+            case R.id.menu_parental_change_pin: {
+                EnterPinDialog dialog = new EnterPinDialog(this,
+                        new PinCheckedCallback() {
+                            @Override
+                            public void pinChecked(boolean pinOk) {
+                                if (pinOk) {
+                                    EnterPinDialog dialogNew = new EnterPinDialog(
+                                            TeletextActivity.this,
+                                            new PinEnteredCallback() {
+                                                @Override
+                                                public void pinEntered(int pin) {
+                                                    mDVBManager
+                                                            .getParentalManager()
+                                                            .changePin(pin);
+                                                }
+                                            });
+                                    dialogNew.setTitle("Enter new Pin code");
+                                    dialogNew.show();
+                                }
+                            }
+                        });
+                dialog.show();
+                return true;
+            }
         }
         /** Check for parental rate values. */
         if (item.getItemId() >= 0
                 && item.getItemId() < ParentalLockAge.values().length) {
-            CheckPinDialog dialog = new CheckPinDialog(this,
+            EnterPinDialog dialog = new EnterPinDialog(this,
                     new PinCheckedCallback() {
                         @Override
                         public void pinChecked(boolean pinOk) {

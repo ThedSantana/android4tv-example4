@@ -58,4 +58,8 @@
             <!-- empty submenu, filled programatically -->
         </menu>
     </item>
+    <item
+        android:id="@+id/menu_parental_change_pin"
+        android:orderInCategory="100"
+        android:title="@string/parental_change_pin"/>
 </menu>

@@ -19,5 +19,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="parental_age">Set parental age</string>
+    <string name="parental_change_pin">Change Pin code</string>
     <string name="channel_lock">Lock/Unlock channels</string>
 </resources>

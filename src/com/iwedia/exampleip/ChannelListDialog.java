@@ -26,8 +26,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.GridView;
 
-import com.iwedia.custom.CheckPinDialog;
-import com.iwedia.custom.CheckPinDialog.PinCheckedCallback;
+import com.iwedia.custom.EnterPinDialog;
+import com.iwedia.custom.EnterPinDialog.PinCheckedCallback;
 import com.iwedia.dtv.types.InternalException;
 import com.iwedia.exampleip.adapters.ChannelListAdapter;
 import com.iwedia.exampleip.dtv.DVBManager;
@@ -85,7 +85,7 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
                 ((ChannelListAdapter) mChannelList.getAdapter())
                         .setInChannelLockedState(false);
             } else {
-                CheckPinDialog dialog = new CheckPinDialog(mActivity,
+                EnterPinDialog dialog = new EnterPinDialog(mActivity,
                         new PinCheckedCallback() {
                             @Override
                             public void pinChecked(boolean pinOk) {
