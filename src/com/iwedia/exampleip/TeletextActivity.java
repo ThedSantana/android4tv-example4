@@ -36,6 +36,8 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -49,14 +51,17 @@ import com.iwedia.dtv.subtitle.SubtitleMode;
 import com.iwedia.dtv.subtitle.SubtitleTrack;
 import com.iwedia.dtv.teletext.TeletextTrack;
 import com.iwedia.dtv.types.InternalException;
+import com.iwedia.dtv.types.TimeDate;
 import com.iwedia.exampleip.callbacks.ParentalCallback;
 import com.iwedia.exampleip.dtv.ChannelInfo;
+import com.iwedia.exampleip.dtv.DVBManager;
 import com.iwedia.exampleip.dtv.IPService;
 import com.iwedia.exampleip.dtv.TeletextSubtitleAudioManager;
 import com.iwedia.four.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TeletextActivity extends DTVActivity {
     public static final String TAG = "MainActivity";
@@ -65,13 +70,26 @@ public class TeletextActivity extends DTVActivity {
     /** Channel Number/Name View Duration in Milliseconds. */
     public static final int CHANNEL_VIEW_DURATION = 5000;
     /** Views needed in activity. */
-    private LinearLayout mChannelContainer = null;
+    private RelativeLayout mChannelContainer = null;
+    private RelativeLayout mNowNextContainer = null;
     private TextView mChannelNumber = null;
     private TextView mChannelName = null;
+    private TextView mEPGNow = null;
+    private TextView mEPGNext = null;
+    private TextView mEPGStartTime = null;
+    private TextView mEPGEndTime = null;
+    private TextView mEPGTime = null;
+    private TextView mEPGDate = null;
+    private TextView mEPGParental = null;
+    private ProgressBar mProgressBarNow = null;
+    private TextView mAgeLockedContainer, mChannelLockedContainer;
     /** Handler for sending action messages to update UI. */
     private UiHandler mHandler = null;
     /** Subtitle and teletext views */
     private SurfaceView mSurfaceView;
+    /** Time and Date Format */
+    private SimpleDateFormat mTimeFormat = new SimpleDateFormat("HH:mm");
+    private SimpleDateFormat mDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +99,8 @@ public class TeletextActivity extends DTVActivity {
         initializeVideoView();
         /** Initialize Channel Container. */
         initializeChannelContainer();
+        /** Initialize Present/Following View. */
+        initializeEPGNowNextView();
         /** Initialize subtitle and teletext surface view */
         initializeSurfaceView();
         /** Load default IP channel list */
@@ -312,10 +332,27 @@ public class TeletextActivity extends DTVActivity {
      * Initialize LinearLayout and TextViews.
      */
     private void initializeChannelContainer() {
-        mChannelContainer = (LinearLayout) findViewById(R.id.linearlayout_channel_container);
-        mChannelContainer.setVisibility(View.GONE);
+        mChannelContainer = (RelativeLayout) findViewById(R.id.linearlayout_channel_info_container);
+        mChannelContainer.setVisibility(View.INVISIBLE);
         mChannelNumber = (TextView) findViewById(R.id.textview_channel_number);
         mChannelName = (TextView) findViewById(R.id.textview_channel_name);
+        mAgeLockedContainer = (TextView) findViewById(R.id.textViewAgeLocked);
+        mChannelLockedContainer = (TextView) findViewById(R.id.textViewChannelLocked);
+    }
+
+    /**
+     * Initialize View for Present/Following.
+     */
+    private void initializeEPGNowNextView() {
+        mNowNextContainer = (RelativeLayout) findViewById(R.id.relativelayout_now_next);
+        mEPGNow = (TextView) findViewById(R.id.textview_now);
+        mEPGNext = (TextView) findViewById(R.id.textview_next);
+        mEPGStartTime = (TextView) findViewById(R.id.textview_start_time);
+        mEPGEndTime = (TextView) findViewById(R.id.textview_end_time);
+        mEPGTime = (TextView) findViewById(R.id.textview_time);
+        mEPGDate = (TextView) findViewById(R.id.textview_date);
+        mEPGParental = (TextView) findViewById(R.id.textview_parental);
+        mProgressBarNow = (ProgressBar) findViewById(R.id.progressbar_now);
     }
 
     /**
@@ -333,16 +370,84 @@ public class TeletextActivity extends DTVActivity {
      * 
      * @param channelInfo
      */
-    private void showChannelInfo(ChannelInfo channelInfo) {
+    @Override
+    public void showChannelInfo(ChannelInfo channelInfo) {
         if (channelInfo != null) {
-            mChannelNumber.setText("" + channelInfo.getNumber());
+            /** Prepare Views. */
+            mChannelNumber.setText(String.valueOf(channelInfo.getNumber()));
             mChannelName.setText(channelInfo.getName());
+            if (channelInfo.getParental().equals("")) {
+                mEPGParental.setVisibility(View.INVISIBLE);
+            } else {
+                mEPGParental.setText(getResources().getString(
+                        R.string.parental, channelInfo.getParental()));
+                mEPGParental.setVisibility(View.VISIBLE);
+            }
+            if (!channelInfo.getEPGNow().equals("")
+                    || !channelInfo.getEPGNext().equals("")) {
+                if (channelInfo.getProgressPercentPassed() != -1) {
+                    mProgressBarNow.setProgress(channelInfo
+                            .getProgressPercentPassed());
+                    mProgressBarNow.setVisibility(View.VISIBLE);
+                } else {
+                    mProgressBarNow.setVisibility(View.INVISIBLE);
+                }
+                mEPGNow.setText(getResources().getString(R.string.epg_now,
+                        channelInfo.getEPGNow()));
+                mEPGNext.setText(getResources().getString(R.string.epg_next,
+                        channelInfo.getEPGNext()));
+                mEPGStartTime.setText(getTime(channelInfo.getStartTime()));
+                mEPGEndTime.setText(getTime(channelInfo.getEndTime()));
+                mNowNextContainer.setVisibility(View.VISIBLE);
+            } else {
+                mNowNextContainer.setVisibility(View.INVISIBLE);
+            }
+            TimeDate lCurrentTime = DVBManager.getInstance()
+                    .getCurrentTimeDate();
+            mEPGDate.setText(getDate(lCurrentTime.getCalendar().getTime()));
+            mEPGTime.setText(getTime(lCurrentTime.getCalendar().getTime()));
             mChannelContainer.setVisibility(View.VISIBLE);
+            /** Handle Messages. */
             mHandler.removeMessages(UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE);
             mHandler.sendEmptyMessageDelayed(
                     UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE,
                     CHANNEL_VIEW_DURATION);
+        } else {
+            mChannelContainer.setVisibility(View.INVISIBLE);
+            mHandler.removeMessages(UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE);
         }
+    }
+
+    /**
+     * Convert Formated Time in String.
+     */
+    private String getTime(Date date) {
+        if (date != null) {
+            return mTimeFormat.format(date);
+        }
+        return "";
+    }
+
+    /**
+     * Convert Formated Date in String.
+     */
+    private String getDate(Date date) {
+        if (date != null) {
+            return mDateFormat.format(date);
+        }
+        return "";
+    }
+
+    @Override
+    public void showAgeLockedInfo(boolean locked) {
+        mAgeLockedContainer.setVisibility(locked ? View.VISIBLE
+                : View.INVISIBLE);
+    }
+
+    @Override
+    public void showChannelLockedInfo(boolean locked) {
+        mChannelLockedContainer.setVisibility(locked ? View.VISIBLE
+                : View.INVISIBLE);
     }
 
     /**
@@ -401,6 +506,8 @@ public class TeletextActivity extends DTVActivity {
                                 .changeTeletext(0);
                     } catch (InternalException e) {
                         e.printStackTrace();
+                        Toast.makeText(this, "Unable to start teletext",
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
                 /** Show TTX */
@@ -456,6 +563,10 @@ public class TeletextActivity extends DTVActivity {
                                             }
                                         } catch (InternalException e) {
                                             e.printStackTrace();
+                                            Toast.makeText(
+                                                    TeletextActivity.this,
+                                                    "Unable to start teletext",
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -527,6 +638,10 @@ public class TeletextActivity extends DTVActivity {
                                             }
                                         } catch (InternalException e) {
                                             e.printStackTrace();
+                                            Toast.makeText(
+                                                    TeletextActivity.this,
+                                                    "Unable to start subtitles",
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     }
                                 });
@@ -567,6 +682,9 @@ public class TeletextActivity extends DTVActivity {
                                                 .setAudioTrack(which);
                                     } catch (InternalException e) {
                                         e.printStackTrace();
+                                        Toast.makeText(TeletextActivity.this,
+                                                "Unable to change audio track",
+                                                Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
@@ -611,8 +729,8 @@ public class TeletextActivity extends DTVActivity {
              * SHOW INFORMATION SCREEN
              */
             case KeyEvent.KEYCODE_INFO: {
-                showChannelInfo(mDVBManager.getChannelInfo(mDVBManager
-                        .getCurrentChannelNumber()));
+                showChannelInfo(mDVBManager.getChannelInfo(
+                        mDVBManager.getCurrentChannelNumber(), false));
                 return true;
             }
             default: {

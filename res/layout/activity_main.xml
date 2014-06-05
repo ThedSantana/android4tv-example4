@@ -28,34 +28,154 @@
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <TextView
+        android:id="@+id/textViewAgeLocked"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:gravity="center"
+        android:text="@string/age_locked_message"
+        android:textSize="@dimen/text_size_channel_info_time"
+        android:visibility="invisible" />
+    <TextView
+        android:id="@+id/textViewChannelLocked"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:gravity="center"
+        android:text="@string/parental_locked_message"
+        android:textSize="@dimen/text_size_channel_info_time"
+        android:visibility="invisible" />
     <!-- Channel name and number -->
-    <LinearLayout
-        android:id="@+id/linearlayout_channel_container"
-        android:layout_width="@dimen/width_channel_change"
-        android:layout_height="@dimen/height_channel_change"
-        android:layout_margin="@dimen/margin_channel_change"
-        android:background="@drawable/channel_change_selector"
-        android:orientation="vertical"
-        android:padding="@dimen/padding_channel_change" >
-        <TextView
-            android:id="@+id/textview_channel_number"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1.5"
-            android:background="@android:color/black"
+    <RelativeLayout
+        android:id="@+id/linearlayout_channel_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin_channel_change" >
+        <LinearLayout
+            android:id="@+id/linearlayout_dummy_channel"
+            android:layout_width="@dimen/width_channel_change"
+            android:layout_height="@dimen/height_channel_change"
+            android:background="@drawable/channel_change_selector"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_channel_change" >
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1.5"
+                android:background="@android:color/black" >
+                <TextView
+                    android:id="@+id/textview_channel_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/text_size_channel_change_number"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_parental"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="@dimen/margin_parental"
+                    android:background="@drawable/parental_selector"
+                    android:padding="@dimen/padding_parental"
+                    android:textColor="@color/parental"
+                    android:textSize="@dimen/text_size_parental"
+                    android:visibility="invisible" />
+            </RelativeLayout>
+            <TextView
+                android:id="@+id/textview_channel_name"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"
+                android:background="@android:color/darker_gray"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_size_channel_change_name"
+                android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/height_channel_change"
+            android:layout_toLeftOf="@+id/linearlayout_dummy_time"
+            android:layout_toRightOf="@+id/linearlayout_dummy_channel"
+            android:background="@drawable/channel_info_selector"
+            android:padding="@dimen/padding_epg_now_next" >
+            <RelativeLayout
+                android:id="@+id/relativelayout_now_next"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" >
+                <TextView
+                    android:id="@+id/textview_now"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/progressbar_now"
+                    android:singleLine="true"
+                    android:textColor="@android:color/white" />
+                <TextView
+                    android:id="@+id/textview_start_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:singleLine="true"
+                    android:textColor="@android:color/white" />
+                <ProgressBar
+                    android:id="@+id/progressbar_now"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="@dimen/margin_progress"
+                    android:layout_toLeftOf="@+id/textview_end_time"
+                    android:layout_toRightOf="@+id/textview_start_time"
+                    android:progress="0" />
+                <TextView
+                    android:id="@+id/textview_end_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:singleLine="true"
+                    android:textColor="@android:color/white" />
+                <TextView
+                    android:id="@+id/textview_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/textview_end_time"
+                    android:singleLine="true"
+                    android:textColor="@android:color/white" />
+            </RelativeLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/linearlayout_dummy_time"
+            android:layout_width="@dimen/width_channel_change"
+            android:layout_height="@dimen/height_channel_change"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/channel_info_selector"
             android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size_channel_change_number"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/textview_channel_name"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.5"
-            android:background="@android:color/darker_gray"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/text_size_channel_change_name"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:orientation="vertical"
+            android:padding="@dimen/padding_channel_change" >
+            <TextView
+                android:id="@+id/textview_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_size_channel_info_date" />
+            <TextView
+                android:id="@+id/textview_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:singleLine="true"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_size_channel_info_time"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>

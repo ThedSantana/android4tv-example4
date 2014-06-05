@@ -21,4 +21,11 @@
     <string name="parental_age">Set parental age</string>
     <string name="parental_change_pin">Change Pin code</string>
     <string name="channel_lock">Lock/Unlock channels</string>
+    <string name="epg_now">Now: %1$s</string>
+    <string name="epg_next">Next: %1$s</string>
+    <string name="parental">%1$s+</string>
+    <string name="volume">Volume</string>
+    <string name="volume_percent">%1$s%%</string>
+    <string name="age_locked_message">This event is locked by age.\nGo to Parental age settings and increase the age to watch this show.</string>
+    <string name="parental_locked_message">This channel is locked.\nGo to service list and unlock it with Lock/Unlock channels option.</string>
 </resources>

@@ -14,9 +14,9 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <color name="channel_list_background_color">#4000</color>
-    <color name="channel_list_item_channel_number_background_color">#8000</color>
-    <color name="channel_list_item_channel_name_background_color">#FAAA</color>
-    <color name="parental">#FF00</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item><shape android:shape="oval">
+            <stroke android:width="@dimen/width_selector_parental" android:color="#FFFF0000"/>
+            <solid android:color="#00000000"/>
+        </shape></item>
+</selector>

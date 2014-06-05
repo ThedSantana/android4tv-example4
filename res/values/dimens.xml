@@ -16,10 +16,18 @@
 -->
 <resources>
     <dimen name="padding_channel_change">3dp</dimen>
+    <dimen name="padding_parental">5dp</dimen>
     <dimen name="padding_channel_list">50dp</dimen>
+    <dimen name="padding_epg_now_next">10dp</dimen>
     <dimen name="margin_channel_change">50dp</dimen>
+    <dimen name="margin_progress">5dp</dimen>
     <dimen name="width_channel_change">140dp</dimen>
     <dimen name="height_channel_change">100dp</dimen>
     <dimen name="text_size_channel_change_number">50dp</dimen>
     <dimen name="text_size_channel_change_name">20dp</dimen>
+    <dimen name="text_size_parental">12sp</dimen>
+    <dimen name="text_size_channel_info_date">12sp</dimen>
+    <dimen name="text_size_channel_info_time">30sp</dimen>
+    <dimen name="margin_parental">5dp</dimen>
+    <dimen name="width_selector_parental">2dp</dimen>
 </resources>

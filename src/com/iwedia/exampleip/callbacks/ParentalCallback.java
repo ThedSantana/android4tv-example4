@@ -11,25 +11,17 @@
 package com.iwedia.exampleip.callbacks;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
-import com.iwedia.custom.EnterPinDialog;
-import com.iwedia.custom.EnterPinDialog.PinCheckedCallback;
 import com.iwedia.dtv.parental.dvb.IParentalCallbackDvb;
 import com.iwedia.dtv.parental.dvb.ParentalAgeEvent;
+import com.iwedia.exampleip.dtv.DVBManager;
 
 /**
  * Parental control callback.
  */
 public class ParentalCallback implements IParentalCallbackDvb {
-    private EnterPinDialog mAlertDialog;
-    private Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            mAlertDialog.show();
-        };
-    };
+    private DVBManager mDvbManager = null;
     private static ParentalCallback sInstance;
 
     public static ParentalCallback getInstance(Context context) {
@@ -40,19 +32,14 @@ public class ParentalCallback implements IParentalCallbackDvb {
     }
 
     private ParentalCallback(final Context context) {
-        mAlertDialog = new EnterPinDialog(context, new PinCheckedCallback() {
-            @Override
-            public void pinChecked(boolean pinOk) {
-                Log.d("ParentalCallback", "PIN IS OK: " + pinOk);
-            }
-        });
+        mDvbManager = DVBManager.getInstance();
     }
 
     @Override
     public void ageLocked(ParentalAgeEvent arg0) {
         Log.d("ParentalCallback", "AGE LOCKED CALLBACK HAPPENED, FOR AGE: "
-                + arg0.getAge());
-        mHandler.sendEmptyMessage(0);
+                + arg0.getAge() + ", IS LOCKED: " + arg0.isLocked());
+        mDvbManager.updateAgeLocked(arg0.isLocked());
     }
 
     @Override
@@ -60,8 +47,6 @@ public class ParentalCallback implements IParentalCallbackDvb {
         Log.d("ParentalCallback",
                 "CHANNEL LOCKED CALLBACK HAPPENED, FOR CHANNEL: " + arg0 + " "
                         + arg1);
-        if (arg1) {
-            mHandler.sendEmptyMessage(0);
-        }
+        mDvbManager.updateChannelLocked(arg1);
     }
 }

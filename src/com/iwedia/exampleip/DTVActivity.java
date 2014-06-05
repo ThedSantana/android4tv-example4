@@ -16,12 +16,15 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.iwedia.exampleip.dtv.ChannelInfo;
 import com.iwedia.exampleip.dtv.DVBManager;
+import com.iwedia.exampleip.dtv.DVBManager.DVBStatus;
 import com.iwedia.exampleip.dtv.IPService;
 
 import java.io.BufferedReader;
@@ -43,6 +46,8 @@ public abstract class DTVActivity extends Activity {
     private static final String LAST_WATCHED_CHANNEL_INDEX = "last_watched";
     public static final String EXTERNAL_MEDIA_PATH = "/mnt/media/";
     public static final String IP_CHANNELS = "ip_service_list.txt";
+    private static final int MESSAGE_UPDATE_NOW_NEXT = 1,
+            MESSAGE_AGE_LOCKED = 2, MESSAGE_CHANNEL_LOCKED = 3;
     private static DTVActivity instance;
     /** DTV manager instance. */
     protected DVBManager mDVBManager = null;
@@ -66,6 +71,8 @@ public abstract class DTVActivity extends Activity {
         }
         /** Creates dtv manager object and connects it to service. */
         mDVBManager = DVBManager.getInstance();
+        mDVBManager.registerEpgCallback();
+        mDVBManager.setDVBStatus(mDvbStatusCallBack);
         initializeIpChannels();
     }
 
@@ -206,4 +213,70 @@ public abstract class DTVActivity extends Activity {
             }
         }
     }
+
+    /**
+     * Show Channel Name and Number of Current Channel on Channel Change.
+     * 
+     * @param channelInfo
+     */
+    public abstract void showChannelInfo(ChannelInfo channelInfo);
+
+    /**
+     * Show/hide age locked info layout.
+     * 
+     * @param locked
+     *        Is event age locked.
+     */
+    public abstract void showAgeLockedInfo(boolean locked);
+
+    /**
+     * Show/hide channel locked info layout.
+     * 
+     * @param locked
+     *        Is channel locked.
+     */
+    public abstract void showChannelLockedInfo(boolean locked);
+
+    /** Handler */
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case MESSAGE_UPDATE_NOW_NEXT: {
+                    showChannelInfo(mDVBManager.getChannelInfo(
+                            mDVBManager.getCurrentChannelNumber(), false));
+                    break;
+                }
+                case MESSAGE_AGE_LOCKED: {
+                    showAgeLockedInfo((Boolean) msg.obj);
+                    break;
+                }
+                case MESSAGE_CHANNEL_LOCKED: {
+                    showChannelLockedInfo((Boolean) msg.obj);
+                    break;
+                }
+                default:
+                    break;
+            }
+        };
+    };
+    /**
+     * DVB CallBack.
+     */
+    private DVBStatus mDvbStatusCallBack = new DVBStatus() {
+        @Override
+        public void updateNowNext() {
+            Message.obtain(mHandler, MESSAGE_UPDATE_NOW_NEXT).sendToTarget();
+        }
+
+        @Override
+        public void ageLocked(boolean locked) {
+            Message.obtain(mHandler, MESSAGE_AGE_LOCKED, locked).sendToTarget();
+        }
+
+        @Override
+        public void channelLocked(boolean locked) {
+            Message.obtain(mHandler, MESSAGE_CHANNEL_LOCKED, locked)
+                    .sendToTarget();
+        }
+    };
 }
