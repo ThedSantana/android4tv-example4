@@ -16,6 +16,7 @@ import android.content.DialogInterface;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.iwedia.exampleip.dtv.DVBManager;
 
@@ -49,7 +50,7 @@ public class EnterPinDialog extends AlertDialog {
         init(context);
     }
 
-    private void init(Context context) {
+    private void init(final Context context) {
         setTitle("Enter Pin code");
         setButton(BUTTON_POSITIVE, "Ok", new DialogInterface.OnClickListener() {
             @Override
@@ -62,8 +63,13 @@ public class EnterPinDialog extends AlertDialog {
                         e.printStackTrace();
                     }
                     if (mCallbackPinChecked != null) {
-                        mCallbackPinChecked.pinChecked(DVBManager.getInstance()
-                                .getParentalManager().checkPin(pin));
+                        boolean ok = DVBManager.getInstance()
+                                .getParentalManager().checkPin(pin);
+                        if (!ok) {
+                            Toast.makeText(context, "Wrong pin entered",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        mCallbackPinChecked.pinChecked(ok);
                     }
                     if (mCallbackPinEntered != null) {
                         mCallbackPinEntered.pinEntered(pin);
