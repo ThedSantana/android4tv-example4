@@ -731,9 +731,13 @@ public class TeletextActivity extends DTVActivity implements
              * SHOW INFORMATION SCREEN
              */
             case KeyEvent.KEYCODE_INFO: {
-                setChannelInfo(mDVBManager.getChannelInfo(
-                        mDVBManager.getCurrentChannelNumber(), false));
-                showChannelInfo();
+                try {
+                    setChannelInfo(mDVBManager.getChannelInfo(
+                            mDVBManager.getCurrentChannelNumber(), false));
+                    showChannelInfo();
+                } catch (InternalException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
             default: {

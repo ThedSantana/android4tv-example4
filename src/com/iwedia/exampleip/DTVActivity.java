@@ -22,6 +22,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.iwedia.dtv.types.InternalException;
 import com.iwedia.exampleip.dtv.ChannelInfo;
 import com.iwedia.exampleip.dtv.DVBManager;
 import com.iwedia.exampleip.dtv.DVBManager.DVBStatus;
@@ -249,8 +250,12 @@ public abstract class DTVActivity extends Activity {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MESSAGE_UPDATE_NOW_NEXT: {
-                    setChannelInfo(mDVBManager.getChannelInfo(
-                            mDVBManager.getCurrentChannelNumber(), false));
+                    try {
+                        setChannelInfo(mDVBManager.getChannelInfo(
+                                mDVBManager.getCurrentChannelNumber(), false));
+                    } catch (InternalException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 }
                 case MESSAGE_AGE_LOCKED: {

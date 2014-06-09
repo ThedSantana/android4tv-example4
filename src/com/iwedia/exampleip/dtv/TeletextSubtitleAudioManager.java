@@ -30,8 +30,8 @@ import com.iwedia.dtv.types.UserControl;
 import java.util.Locale;
 
 public class TeletextSubtitleAudioManager {
-    public static final int TELETEXT_BACKGROUND_TRANSPARENT = 0,
-            TELETEXT_BACKGROUND_OPAQUE = 255;
+    public static final int TELETEXT_BACKGROUND_TRANSPARENT = 255,
+            TELETEXT_BACKGROUND_OPAQUE = 0;
     private ITeletextControl mTeletextControl;
     private ISubtitleControl mSubtitleControl;
     private IAudioControl mAudioControl;
