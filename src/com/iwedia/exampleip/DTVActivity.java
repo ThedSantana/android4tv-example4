@@ -219,7 +219,14 @@ public abstract class DTVActivity extends Activity {
      * 
      * @param channelInfo
      */
-    public abstract void showChannelInfo(ChannelInfo channelInfo);
+    public abstract void showChannelInfo();
+
+    /**
+     * Sets Channel Name and Number of Current Channel on Channel Change.
+     * 
+     * @param channelInfo
+     */
+    public abstract void setChannelInfo(ChannelInfo channelInfo);
 
     /**
      * Show/hide age locked info layout.
@@ -242,7 +249,7 @@ public abstract class DTVActivity extends Activity {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MESSAGE_UPDATE_NOW_NEXT: {
-                    showChannelInfo(mDVBManager.getChannelInfo(
+                    setChannelInfo(mDVBManager.getChannelInfo(
                             mDVBManager.getCurrentChannelNumber(), false));
                     break;
                 }

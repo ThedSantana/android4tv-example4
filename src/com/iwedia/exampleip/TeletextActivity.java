@@ -358,13 +358,17 @@ public class TeletextActivity extends DTVActivity implements
         mSurfaceView.setZOrderOnTop(true);
     }
 
-    /**
-     * Show Channel Name and Number of Current Channel on Channel Change.
-     * 
-     * @param channelInfo
-     */
     @Override
-    public void showChannelInfo(ChannelInfo channelInfo) {
+    public void showChannelInfo() {
+        mChannelContainer.setVisibility(View.VISIBLE);
+        /** Handle Messages. */
+        mHandler.removeMessages(UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE);
+        mHandler.sendEmptyMessageDelayed(
+                UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE, CHANNEL_VIEW_DURATION);
+    }
+
+    @Override
+    public void setChannelInfo(ChannelInfo channelInfo) {
         if (channelInfo != null) {
             /** Prepare Views. */
             mChannelNumber.setText(String.valueOf(channelInfo.getNumber()));
@@ -399,12 +403,6 @@ public class TeletextActivity extends DTVActivity implements
                     .getCurrentTimeDate();
             mEPGDate.setText(getDate(lCurrentTime.getCalendar().getTime()));
             mEPGTime.setText(getTime(lCurrentTime.getCalendar().getTime()));
-            mChannelContainer.setVisibility(View.VISIBLE);
-            /** Handle Messages. */
-            mHandler.removeMessages(UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE);
-            mHandler.sendEmptyMessageDelayed(
-                    UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE,
-                    CHANNEL_VIEW_DURATION);
         } else {
             mChannelContainer.setVisibility(View.INVISIBLE);
             mHandler.removeMessages(UiHandler.HIDE_CHANNEL_INFO_VIEW_MESSAGE);
@@ -703,7 +701,8 @@ public class TeletextActivity extends DTVActivity implements
             case KeyEvent.KEYCODE_F4:
             case KeyEvent.KEYCODE_CHANNEL_UP: {
                 try {
-                    showChannelInfo(mDVBManager.changeChannelUp());
+                    setChannelInfo(mDVBManager.changeChannelUp());
+                    showChannelInfo();
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 } catch (InternalException e) {
@@ -719,7 +718,8 @@ public class TeletextActivity extends DTVActivity implements
             case KeyEvent.KEYCODE_F3:
             case KeyEvent.KEYCODE_CHANNEL_DOWN: {
                 try {
-                    showChannelInfo(mDVBManager.changeChannelDown());
+                    setChannelInfo(mDVBManager.changeChannelDown());
+                    showChannelInfo();
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 } catch (InternalException e) {
@@ -731,8 +731,9 @@ public class TeletextActivity extends DTVActivity implements
              * SHOW INFORMATION SCREEN
              */
             case KeyEvent.KEYCODE_INFO: {
-                showChannelInfo(mDVBManager.getChannelInfo(
+                setChannelInfo(mDVBManager.getChannelInfo(
                         mDVBManager.getCurrentChannelNumber(), false));
+                showChannelInfo();
                 return true;
             }
             default: {
