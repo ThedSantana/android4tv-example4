@@ -35,7 +35,8 @@ import android.view.SubMenu;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -63,7 +64,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class TeletextActivity extends DTVActivity {
+public class TeletextActivity extends DTVActivity implements
+        OnMenuItemClickListener {
     public static final String TAG = "MainActivity";
     /** URI For VideoView. */
     public static final String TV_URI = "tv://";
@@ -83,6 +85,7 @@ public class TeletextActivity extends DTVActivity {
     private TextView mEPGParental = null;
     private ProgressBar mProgressBarNow = null;
     private TextView mAgeLockedContainer, mChannelLockedContainer;
+    private PopupMenu mPopup;
     /** Handler for sending action messages to update UI. */
     private UiHandler mHandler = null;
     /** Subtitle and teletext views */
@@ -160,66 +163,67 @@ public class TeletextActivity extends DTVActivity {
         sIpChannels = null;
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main, menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_parental_age);
-        SubMenu subMenu = menuItem.getSubMenu();
-        for (int i = 0; i < ParentalLockAge.values().length; i++) {
-            ParentalLockAge parental = ParentalLockAge.values()[i];
-            String text = parental.name();
-            if (text.contains("_")) {
-                text = text.replace("_", " ");
-                text = text.replace("LOCK", "UNDER");
-            }
-            MenuItem item = subMenu.add(Menu.NONE, i, Menu.NONE, text);
-            item.setCheckable(true);
+    /** Listener for menu button click */
+    public void onClickMenu(View v) {
+        // openOptionsMenu();
+        if (v == null) {
+            v = findViewById(R.id.menu_view);
         }
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+        // create popup menu
+        if (mPopup == null) {
+            mPopup = new PopupMenu(this, v);
+            mPopup.setOnMenuItemClickListener(this);
+            MenuInflater inflater = mPopup.getMenuInflater();
+            inflater.inflate(R.menu.main, mPopup.getMenu());
+            MenuItem menuItem = mPopup.getMenu().findItem(
+                    R.id.menu_parental_age);
+            SubMenu subMenu = menuItem.getSubMenu();
+            for (int i = 0; i < ParentalLockAge.values().length; i++) {
+                ParentalLockAge parental = ParentalLockAge.values()[i];
+                String text = parental.name();
+                if (text.contains("_")) {
+                    text = text.replace("_", " ");
+                    text = text.replace("LOCK", "UNDER");
+                }
+                MenuItem item = subMenu.add(Menu.NONE, i, Menu.NONE, text);
+                item.setCheckable(true);
+            }
+        }
+        /**
+         * Set states of menu elements.
+         */
         /**
          * Subtitles automatic
          */
-        MenuItem checkable = menu.findItem(R.id.menu_subtitles_automatic);
+        MenuItem checkable = mPopup.getMenu().findItem(
+                R.id.menu_subtitles_automatic);
         checkable.setChecked(mDVBManager.getTeletextSubtitleAudioManager()
                 .isSubtitleAutomatic());
-        /**
-         * Subtitles type
-         */
-        // SubtitleType type = mDVBManager.getTeletextSubtitleAudioManager()
-        // .getSubtitleType();
-        // checkable = menu.findItem(R.id.menu_subtitles_type_dvb);
-        // checkable.setChecked(type == SubtitleType.DVB);
-        // checkable = menu.findItem(R.id.menu_subtitles_type_ttxt);
-        // checkable.setChecked(type == SubtitleType.TTX);
         /**
          * Subtitles mode
          */
         SubtitleMode mode = mDVBManager.getTeletextSubtitleAudioManager()
                 .getSubtitleMode();
-        checkable = menu.findItem(R.id.menu_subtitles_mode_normal);
+        checkable = mPopup.getMenu().findItem(R.id.menu_subtitles_mode_normal);
         checkable.setChecked(mode == SubtitleMode.TRANSLATION);
-        checkable = menu.findItem(R.id.menu_subtitles_mode_hoh);
+        checkable = mPopup.getMenu().findItem(R.id.menu_subtitles_mode_hoh);
         checkable.setChecked(mode == SubtitleMode.HEARING_IMPAIRED);
         /**
          * Parental rates.
          */
         /** Return all parental menu items to UNCHECKED. */
         for (int i = 0; i < ParentalLockAge.values().length; i++) {
-            menu.findItem(i).setChecked(false);
+            mPopup.getMenu().findItem(i).setChecked(false);
         }
         /** CHECK active menu item. */
-        menu.findItem(mDVBManager.getParentalManager().getParentalRate())
+        mPopup.getMenu()
+                .findItem(mDVBManager.getParentalManager().getParentalRate())
                 .setChecked(true);
-        return true;
+        mPopup.show();
     }
 
     @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menu_scan_usb: {
@@ -234,17 +238,6 @@ public class TeletextActivity extends DTVActivity {
                         .setSubtitleAutomatic(item.isChecked());
                 return true;
             }
-            // case R.id.menu_subtitles_type_dvb: {
-            // if (item.isChecked())
-            // mDVBManager.getTeletextSubtitleAudioManager()
-            // .setSubtitleType(SubtitleType.DVB);
-            // return true;
-            // }
-            // case R.id.menu_subtitles_type_ttxt: {
-            // mDVBManager.getTeletextSubtitleAudioManager().setSubtitleType(
-            // SubtitleType.TTX);
-            // return true;
-            // }
             case R.id.menu_subtitles_mode_normal: {
                 mDVBManager.getTeletextSubtitleAudioManager().setSubtitleMode(
                         SubtitleMode.TRANSLATION);
@@ -298,7 +291,7 @@ public class TeletextActivity extends DTVActivity {
             dialog.show();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return true;
     }
 
     /**
@@ -448,6 +441,15 @@ public class TeletextActivity extends DTVActivity {
     public void showChannelLockedInfo(boolean locked) {
         mChannelLockedContainer.setVisibility(locked ? View.VISIBLE
                 : View.INVISIBLE);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            onClickMenu(null);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     /**
