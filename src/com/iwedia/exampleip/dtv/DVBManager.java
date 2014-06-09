@@ -438,9 +438,6 @@ public class DVBManager {
         }
         /** For IP */
         else {
-            if (mDVBStatus != null) {
-                mDVBStatus.ageLocked(false);
-            }
             mCurrentLiveRoute = mLiveRouteIp;
             mCurrentRecordRoute = mRecordRouteIp;
             mCurrentChannelNumberIp = channelNumber;
@@ -448,6 +445,9 @@ public class DVBManager {
                     mLiveRouteIp,
                     DTVActivity.sIpChannels.get(
                             channelNumber - numberOfDtvChannels).getUrl());
+        }
+        if (mDVBStatus != null) {
+            mDVBStatus.ageLocked(false);
         }
         DTVActivity.setLastWatchedChannelIndex(channelNumber);
         return getChannelInfo(channelNumber, true);
