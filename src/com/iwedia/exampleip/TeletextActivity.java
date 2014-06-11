@@ -112,7 +112,7 @@ public class TeletextActivity extends DTVActivity implements
         mHandler = new UiHandler(mChannelContainer, mSurfaceView);
         /** Start DTV. */
         try {
-            mDVBManager.startDTV(getLastWatchedChannelIndex());
+            mDVBManager.changeChannelByNumber(getLastWatchedChannelIndex());
         } catch (IllegalArgumentException e) {
             Toast.makeText(
                     this,
