@@ -460,6 +460,9 @@ public class DVBManager {
         if (mDVBStatus != null) {
             mDVBStatus.ageLocked(false);
         }
+        if (mDVBStatus != null) {
+            mDVBStatus.ageLocked(false);
+        }
         DTVActivity.setLastWatchedChannelIndex(channelNumber);
         return getChannelInfo(channelNumber, true);
     }
