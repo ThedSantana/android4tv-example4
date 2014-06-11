@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.RemoteException;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,6 +26,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 
 import com.iwedia.custom.EnterPinDialog;
 import com.iwedia.custom.EnterPinDialog.PinCheckedCallback;
@@ -36,10 +39,12 @@ import com.iwedia.four.R;
 /**
  * Channel List Activity.
  */
-public class ChannelListDialog extends Dialog implements OnItemClickListener {
+public class ChannelListDialog extends Dialog implements OnItemClickListener,
+        OnMenuItemClickListener {
     public static final String TAG = "ChannelListActivity";
     private GridView mChannelList;
     private Activity mActivity;
+    private PopupMenu mPopup;
 
     public ChannelListDialog(Activity activity, int width, int height) {
         super(activity, R.style.DialogTransparent);
@@ -70,15 +75,24 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
         mChannelList.setOnItemClickListener(this);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = mActivity.getMenuInflater();
-        inflater.inflate(R.menu.channel_lock, menu);
-        return true;
+    /** Listener for menu button click */
+    public void onClickMenu(View v) {
+        // openOptionsMenu();
+        if (v == null) {
+            v = findViewById(R.id.menu_view);
+        }
+        // create popup menu
+        if (mPopup == null) {
+            mPopup = new PopupMenu(mActivity, v);
+            mPopup.setOnMenuItemClickListener(this);
+            MenuInflater inflater = mPopup.getMenuInflater();
+            inflater.inflate(R.menu.channel_lock, mPopup.getMenu());
+        }
+        mPopup.show();
     }
 
     @Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    public boolean onMenuItemClick(final MenuItem item) {
         if (item.getItemId() == R.id.menu_channel_lock) {
             if (((ChannelListAdapter) mChannelList.getAdapter())
                     .isInChannelLockedState()) {
@@ -96,7 +110,16 @@ public class ChannelListDialog extends Dialog implements OnItemClickListener {
                 dialog.show();
             }
         }
-        return super.onMenuItemSelected(featureId, item);
+        return true;
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) {
+            onClickMenu(null);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     @Override

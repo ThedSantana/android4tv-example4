@@ -17,7 +17,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent" >
+    <View
+        android:id="@+id/menu_view"
+        android:layout_width="20dp"
+        android:layout_height="2dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:focusable="false" />
     <GridView
         android:id="@+id/gridview_channellist"
         android:layout_width="match_parent"
@@ -27,6 +34,6 @@
         android:listSelector="@android:color/transparent"
         android:numColumns="4"
         android:padding="@dimen/padding_channel_list"
-        android:verticalSpacing="15dp">
+        android:verticalSpacing="15dp" >
     </GridView>
 </RelativeLayout>
